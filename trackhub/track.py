@@ -1,7 +1,7 @@
 class Track(object):
     """ Base class for a track object. """
 
-    def __init__(self.name):
+    def __init__(self):
         self.track_name = None
         self.big_data_url = None
         self.short_label = None
