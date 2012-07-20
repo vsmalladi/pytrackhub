@@ -5,7 +5,7 @@ import track
 class GenomeStanza(object):
     """ Base class for genome stanza. """
 
-    def __init__(self, genome=None, track_file="trackDb.txt"):
+    def __init__(self, genome=None, track_file='trackDb.txt'):
         self.genome = genome
         self.track_file = track_file #File Name only, no direcotry
         self.track_list = []
@@ -84,5 +84,5 @@ class GenomeFile(object):
         try:
             genome_object.add_track(track_object)
         except:
-            raise LookupError("Genome not known " + genome_object)
+            raise LookupError('Genome not known ' + genome_object)
 
