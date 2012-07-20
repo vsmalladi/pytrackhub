@@ -17,7 +17,7 @@ class Track(object):
         self.ordered_attributes['bigDataUrl'] = self.big_data_url
         self.ordered_attributes['shortLabel'] = self.short_label
         self.ordered_attributes['longLabel'] = self.long_label
-        self.ordered_attributes['trackType'] =self.track_type
+        self.ordered_attributes['trackType'] = self.track_type
 
     def __str__(self):
         str = ''
