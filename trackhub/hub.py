@@ -63,7 +63,7 @@ class Hub(object):
         hub_file.write('\n')
         hub_file.close()
 
-    def write_hub(self,hub_dir=None):
+    def write_hub_tree(self,hub_dir=None):
         """Write entire hub hierarchy"""
        
         hub_place = self.__hub_directory(hub_dir)
