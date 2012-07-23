@@ -53,7 +53,7 @@ class Hub(object):
         
         return hub_object_path
 
-    def write(self,hub_file_place):
+    def write_hub_file(self,hub_file_place):
         """Write hub object into a file under directory named after the hub"""
 
         hub_file_path = os.path.join(hub_file_place,'hub.txt')
@@ -68,5 +68,5 @@ class Hub(object):
        
         hub_place = self.__hub_directory(hub_dir)
 
-        self.write(hub_place)
+        self.write_hub_file(hub_place)
         self.genomes_object.write_genome_dir(hub_place)

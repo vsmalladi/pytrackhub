@@ -28,7 +28,7 @@ class Track(object):
         return str
 
 
-    def write(self, fh):
+    def write_track_file(self, track_file):
         """Write track object into a file"""
-        fh.write(str(self))
-        fh.write('\n')
+        track_file.write(str(self))
+        track_file.write('\n')

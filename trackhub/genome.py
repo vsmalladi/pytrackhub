@@ -22,14 +22,14 @@ class GenomeStanza(object):
         """ Adds another track object into the list of tracks for a given genome"""
         self.track_list.append(track_object)
 
-    def write_track(self, track_object, track_dir):
+    def write_track_file(self, track_object, track_dir):
         """Write out each track stanza in its own file"""
         track_object_path = os.path.join(track_dir,track_object.track_name)
         track_object_file = open(track_object_path + '.txt','w')
-        track_object.write(track_object_file)
+        track_object.write_track_file(track_object_file)
         track_object_file.close()
 
-    def write_track_file(self,genome_dir):
+    def write_genome_tree(self,genome_dir):
         """Write the include file and loop through and write each tack object """
         genome_object_path = os.path.join(genome_dir,self.genome)
         
@@ -41,14 +41,14 @@ class GenomeStanza(object):
         
         for track in self.track_list:
             track_file.write('include ' + track.track_name + '.txt' + '\n')
-            self.write_track(track,genome_object_path)
+            self.write_track_file(track,genome_object_path)
 
         track_file.close()
 
-    def write(self, fh):
-        """Write genome list into a file"""
-        fh.write(str(self))
-        fh.write('\n')
+    def write_genome(self, genome_file):
+        """Write genome information into genome_file"""
+        genome_file.write(str(self))
+        genome_file.write('\n')
     
 
 class GenomeFile(object):
@@ -69,7 +69,7 @@ class GenomeFile(object):
         """Adds another genome object into the list of genomes for a given trackHub """
         self.genome_list.append(genome_object)
 
-    def write(self,hub_dir):
+    def write_genome_file(self,hub_dir):
         """Write list of genomes out to a genome file."""
         genome_file_path = os.path.join(hub_dir,self.genome_file)
         genome_file = open(genome_file_path,'w')
@@ -79,9 +79,9 @@ class GenomeFile(object):
 
     def write_genome_dir(self,hub_path):
         """Write the files associated for a track in appropiate directory"""
-        self.write(hub_path)
+        self.write_genome_file(hub_path)
         for genome in self.genome_list:
-            genome.write_track_file(hub_path)
+            genome.write_genome_tree(hub_path)
     
 
     def add_track(self,genome_object,track_object):
