@@ -18,7 +18,9 @@ class GenomeStanza(object):
         return str
 
     def add_track(self, track_object):
-        """ Adds another track object into the list of tracks for a given genome"""
+        """
+        Adds another track object into the list of tracks for a given genome
+        """
         self.track_list.append(track_object)
 
     def write_track_file(self, track_object, track_dir):
@@ -29,7 +31,9 @@ class GenomeStanza(object):
         track_object_file.close()
 
     def write_genome_tree(self, genome_dir):
-        """Write the include file and loop through and write each tack object """
+        """
+        Write the include file and loop through and write each tack object
+        """
         genome_object_path = os.path.join(genome_dir, self.genome)
 
         if not os.path.exists(genome_object_path):
@@ -65,7 +69,10 @@ class GenomeFile(object):
         return str
 
     def add_genome(self, genome_object):
-        """Adds another genome object into the list of genomes for a given trackHub """
+        """
+        Adds another genome object into the list of genomes
+        for a given trackHub
+        """
         self.genome_list.append(genome_object)
 
     def write_genome_file(self, hub_dir):

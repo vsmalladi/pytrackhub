@@ -6,7 +6,8 @@ import os
 class Hub(object):
     """ Base class for a hub object. """
 
-    def __init__(self, hub_name=None, short_label=None, long_label=None, email=None):
+    def __init__(self, hub_name=None, short_label=None,
+                long_label=None, email=None):
         self.hub_name = hub_name
         self.short_label = short_label
         self.long_label = long_label
