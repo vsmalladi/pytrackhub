@@ -1,4 +1,5 @@
-from collections import OrderedDict 
+from collections import OrderedDict
+
 
 class Track(object):
     """ Base class for a track object. """
@@ -22,11 +23,10 @@ class Track(object):
     def __str__(self):
         str = ''
         self.__order()
-        for var,val in self.ordered_attributes.items():
+        for var, val in self.ordered_attributes.items():
             str += var + ' ' + val + '\n'
 
         return str
-
 
     def write_track_file(self, track_file):
         """Write track object into a file"""
