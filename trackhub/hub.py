@@ -1,3 +1,5 @@
+""" Class for making the hub directory and file structure """
+
 from collections import OrderedDict
 import os.path
 import os
@@ -24,18 +26,19 @@ class Hub(object):
         self.ordered_attributes['email'] = self.email
 
     def __str__(self):
-        str = ''
+        hub_str = ''
         self.__order()
         for var, val in self.ordered_attributes.items():
-            str += var + ' ' + val + '\n'
+            hub_str += var + ' ' + val + '\n'
 
-        return str
+        return hub_str
 
     def add_genomes_object(self, genomes_object):
         """Add genome object to hub"""
         self.genomes_object = genomes_object
 
     def add_genome(self, genome_object):
+        """Add genome to genomes object"""
         self.genomes_object.add_genome(genome_object)
 
     def __hub_directory(self, hub_dir):

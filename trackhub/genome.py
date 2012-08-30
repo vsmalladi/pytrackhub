@@ -1,3 +1,8 @@
+"""
+Classes used for making a genome file with a list of genomes
+available in the hub.
+"""
+
 import os
 import os.path
 
@@ -11,11 +16,11 @@ class GenomeStanza(object):
         self.track_list = []
 
     def __str__(self):
-        str = ''
-        str += 'genome ' + self.genome + '\n'
-        str += 'trackDb ' + self.genome + '/' + self.track_file + '\n'
+        stanza_str = ''
+        stanza_str += 'genome ' + self.genome + '\n'
+        stanza_str += 'trackDb ' + self.genome + '/' + self.track_file + '\n'
 
-        return str
+        return stanza_str
 
     def add_track(self, track_object):
         """
@@ -62,11 +67,11 @@ class GenomeFile(object):
         self.genome_file = genome_file
 
     def __str__(self):
-        str = ''
+        file_str = ''
         for genome in self.genome_list:
-            str += genome.__str__() + '\n'
+            file_str += genome.__str__() + '\n'
 
-        return str
+        return file_str
 
     def add_genome(self, genome_object):
         """
