@@ -1,102 +1,59 @@
-"""
-Classes used for making a genome file with a list of genomes
-available in the hub.
-"""
-
 import os
-import os.path
+try:
+    from collections import OrderedDict
+except ImportError:
+    from ordereddict import OrderedDict
+from validate import ValidationError
+from base import HubComponent
 
 
-class GenomeStanza(object):
-    """ Base class for genome stanza. """
+class Genome(HubComponent):
+    def __init__(self, genome, trackdb=None, genome_file_obj=None):
+        """
+        Represents a 2-line genome stanza within a "genomes.txt" file.
 
-    def __init__(self, genome=None, track_file='trackDb.txt'):
+        The file itself is represented by a :class:`GenomesFile` object.
+        """
+        HubComponent.__init__(self)
         self.genome = genome
-        self.track_file = track_file  # File Name only, no direcotry
-        self.track_list = []
+        self.trackdb = None
+        if trackdb is not None:
+            self.add_trackdb(trackdb)
+        if genome_file_obj:
+            self.add_parent(genome_file_obj)
 
-    def __str__(self):
-        stanza_str = ''
-        stanza_str += 'genome ' + self.genome + '\n'
-        stanza_str += 'trackDb ' + self.genome + '/' + self.track_file + '\n'
-
-        return stanza_str
-
-    def add_track(self, track_object):
-        """
-        Adds another track object into the list of tracks for a given genome
-        """
-        self.track_list.append(track_object)
-
-    def write_track_file(self, track_object, track_dir):
-        """Write out each track stanza in its own file"""
-        track_object_path = os.path.join(track_dir, track_object.track_name)
-        track_object_file = open(track_object_path + '.txt', 'w')
-        track_object.write_track_file(track_object_file)
-        track_object_file.close()
-
-    def write_genome_tree(self, genome_dir):
-        """
-        Write the include file and loop through and write each tack object
-        """
-        genome_object_path = os.path.join(genome_dir, self.genome)
-
-        if not os.path.exists(genome_object_path):
-            os.mkdir(genome_object_path)
-
-        track_file_path = os.path.join(genome_object_path, self.track_file)
-        track_file = open(track_file_path, 'w')
-
-        for track in self.track_list:
-            track_file.write('include ' + track.track_name + '.txt' + '\n')
-            self.write_track_file(track, genome_object_path)
-
-        track_file.close()
-
-    def write_genome(self, genome_file):
-        """Write genome information into genome_file"""
-        genome_file.write(str(self))
-        genome_file.write('\n')
-
-
-class GenomeFile(object):
-    """" Class for holding all the genome stanza's. """
-
-    def __init__(self, genome_file='genomes.txt'):
-        self.genome_list = []
-        self.genome_file = genome_file
-
-    def __str__(self):
-        file_str = ''
-        for genome in self.genome_list:
-            file_str += genome.__str__() + '\n'
-
-        return file_str
-
-    def add_genome(self, genome_object):
-        """
-        Adds another genome object into the list of genomes
-        for a given trackHub
-        """
-        self.genome_list.append(genome_object)
-
-    def write_genome_file(self, hub_dir):
-        """Write list of genomes out to a genome file."""
-        genome_file_path = os.path.join(hub_dir, self.genome_file)
-        genome_file = open(genome_file_path, 'w')
-
-        genome_file.write(str(self))
-        genome_file.close()
-
-    def write_genome_dir(self, hub_path):
-        """Write the files associated for a track in appropiate directory"""
-        self.write_genome_file(hub_path)
-        for genome in self.genome_list:
-            genome.write_genome_tree(hub_path)
-
-    def add_track(self, genome_object, track_object):
-        """Adds another track object into the list for a given genome_object"""
+    @property
+    def genome_file_obj(self):
         try:
-            genome_object.add_track(track_object)
-        except:
-            raise LookupError('Genome not known ' + genome_object)
+            return self.parent
+        except AttributeError:
+            return None
+
+    def add_trackdb(self, trackdb):
+        self.children = []
+        self.add_child(trackdb)
+        self.trackdb = self.children[0]
+
+    def __str__(self):
+        try:
+            self.validate()
+        except ValidationError:
+            return "Unconfigured <Genome> object"
+        s = []
+        s.append('genome %s' % self.genome)
+        s.append('trackDb %s' % self.trackdb.local_fn)
+        return '\n'.join(s) + '\n'
+
+    def validate(self):
+        if len(self.children) == 0:
+            raise ValidationError(
+                "No TrackDb objects provided")
+        if self.trackdb is None:
+            raise ValidationError("No TrackDb objects provided")
+
+    def _render(self):
+        """
+        No file is created from a Genome object -- only from its parent
+        GenomesFile object.
+        """
+        pass

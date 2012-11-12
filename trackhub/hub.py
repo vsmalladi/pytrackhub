@@ -1,74 +1,122 @@
-""" Class for making the hub directory and file structure """
-
-from collections import OrderedDict
-import os.path
 import os
+try:
+    from collections import OrderedDict
+except ImportError:
+    from ordereddict import OrderedDict
+from validate import ValidationError
+from base import HubComponent
 
 
-class Hub(object):
-    """ Base class for a hub object. """
+class Hub(HubComponent):
+    # map proper track hub stanza field names to pythonic attribute names in
+    # this class.
+    _field_order = OrderedDict([
+        ('hub', 'hub'),
+        ('shortLabel', 'short_label'),
+        ('longLabel', 'long_label'),
+        ('genomesFile', 'genomes_filename'),
+        ('email', 'email'),
+    ]
+    )
 
-    def __init__(self, hub_name=None, short_label=None,
-                long_label=None, email=None):
-        self.hub_name = hub_name
+    def __init__(self, hub, short_label="", long_label=None,
+                 genomes_file=None, genomes_filename=None, email="",
+                 url=None):
+        """
+        Represents a top-level track hub container.
+        """
+        HubComponent.__init__(self)
+        self.url = url
+        self._local_fn = None
+        self._remote_fn = None
+        self._local_dir = None
+        self._remote_dir = None
+        self.hub = hub
         self.short_label = short_label
+        if not long_label:
+            long_label = short_label
         self.long_label = long_label
-        self.genomes_object = None
         self.email = email
-        self.ordered_attributes = OrderedDict()
 
-    def __order(self):
-        """Order 5 basic attributes that should be set """
-        self.ordered_attributes['hub'] = self.hub_name
-        self.ordered_attributes['shortLabel'] = self.short_label
-        self.ordered_attributes['longLabel'] = self.long_label
-        self.ordered_attributes['genomesFile'] = self.genomes_object.genome_file
-        self.ordered_attributes['email'] = self.email
+        self.genomes_file = None
+        if genomes_file is not None:
+            self.add_genomes_file(genomes_file)
+
+    @property
+    def local_fn(self):
+        if self._local_fn is not None:
+            return self._local_fn
+        return os.path.join(self.local_dir, self.hub + '.hub.txt')
+
+    @local_fn.setter
+    def local_fn(self, fn):
+        self._local_fn = fn
+
+    @property
+    def local_dir(self):
+        if self._local_dir is not None:
+            return self._local_dir
+        return ""
+
+    @local_dir.setter
+    def local_dir(self, fn):
+        self._local_dir = fn
+
+    @property
+    def remote_fn(self):
+        if self._remote_fn is not None:
+            return self._remote_fn
+        return os.path.join(self.remote_dir, self.hub + '.hub.txt')
+
+    @remote_fn.setter
+    def remote_fn(self, fn):
+        self._remote_fn = fn
+
+    @property
+    def remote_dir(self):
+        if self._remote_dir is not None:
+            return self._remote_dir
+        return ""
+
+    @remote_dir.setter
+    def remote_dir(self, fn):
+        self._remote_dir = fn
+
+    def validate(self):
+        if self.genomes_file is None:
+            raise ValidationError(
+                'No GenomesFile attached to Hub (use add_genomes_file())')
+        self.genomes_file.validate()
+        return True
+
+    def add_genomes_file(self, genomes_file):
+        """
+        If a GenomesFile object was not provided upon instantiating this
+        object, attach one now
+        """
+        self.genomes_file = self.add_child(genomes_file)
 
     def __str__(self):
-        hub_str = ''
-        self.__order()
-        for var, val in self.ordered_attributes.items():
-            hub_str += var + ' ' + val + '\n'
+        s = []
+        for field, attr in self._field_order.items():
+            if field == 'genomesFile':
+                if self.genomes_file:
+                    value = os.path.relpath(
+                        self.genomes_file.local_fn,
+                        start=os.path.dirname(self.local_fn))
+                else:
+                    value = None
+            else:
+                value = getattr(self, attr)
+            s.append('%s %s' % (field, value))
+        return '\n'.join(s)
 
-        return hub_str
-
-    def add_genomes_object(self, genomes_object):
-        """Add genome object to hub"""
-        self.genomes_object = genomes_object
-
-    def add_genome(self, genome_object):
-        """Add genome to genomes object"""
-        self.genomes_object.add_genome(genome_object)
-
-    def __hub_directory(self, hub_dir):
-        """Determines the path for where the hub will live"""
-        if hub_dir is None:
-            hub_path = os.getcwd()
-        else:
-            hub_path = hub_dir
-
-        hub_object_path = os.path.join(hub_path, self.hub_name)
-
-        if not os.path.exists(hub_object_path):
-            os.mkdir(hub_object_path)
-
-        return hub_object_path
-
-    def write_hub_file(self, hub_file_place):
-        """Write hub object into a file under directory named after the hub"""
-
-        hub_file_path = os.path.join(hub_file_place, 'hub.txt')
-
-        hub_file = open(hub_file_path, 'w')
-        hub_file.write(str(self))
-        hub_file.write('\n')
-        hub_file.close()
-
-    def write_hub_tree(self, hub_dir=None):
-        """Write entire hub hierarchy"""
-
-        hub_place = self.__hub_directory(hub_dir)
-
-        self.write_hub_file(hub_place)
-        self.genomes_object.write_genome_dir(hub_place)
+    def _render(self):
+        """
+        Render just this object, and not all the underlying GenomeFiles and
+        their TrackDb.
+        """
+        fout = open(self.local_fn, 'w')
+        fout.write(str(self))
+        fout.close()
+        return fout.name
